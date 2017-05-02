@@ -1,0 +1,11 @@
+x = [-1.5; -1; 0; 1; 0; -1; 0; 1; 0; -1; 0; 1; 0; -1; -1.5];
+y = [0; 0; -1; 0; 1; 0; -1; 0; 1; 0; -1; 0; 1; 0; 0];
+z = [-6; -6; -5; -4; -3; -2; -1; 0; 1; 2; 3; 4; 5; 6; 6]./6;
+t = getT(x,y,z);
+Nx = divDiff(t, x); Ny = divDiff(t, y); Nz = divDiff(t, z);
+tp = linspace(t(1), t(end), 666);
+xp = hornerNewton(Nx, t, tp);
+yp = hornerNewton(Ny, t, tp);
+zp = hornerNewton(Nz, t, tp);
+plot3(x, y, z, 'ks', xp, yp, zp, 'r-');
+axis equal; view(-35, 40); axis([-1.6, 1.1, -1.1, 1.1, -1.1, 1.1]);

@@ -1,0 +1,73 @@
+% !TeX spellcheck = de_DE
+\documentclass[ngerman,12pt]{article}
+
+% Packages for Language
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[final]{graphicx}
+\usepackage{amsmath}
+\usepackage{float}
+%\usepackage{wrapfig}
+\usepackage{caption}
+%\usepackage{multirow}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage[german, plain]{fancyref}
+\usepackage{afterpage,pdflscape} %%% !!!!!!! CHANGE TO PDFLSCAPE LATER!
+\usepackage{varioref}
+\usepackage{siunitx}
+\usepackage{translator}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\setlength{\headheight}{15.5pt}
+\lhead{NAME NAME NAME}
+\rhead{\today}
+\chead{Numerik Übung 4}
+
+
+\begin{document}
+\lstset{language=Matlab,basicstyle=\ttfamily,columns=fixed}
+\subsubsection*{A5}
+\begin{lstlisting}[frame=single]
+[X, Y] = meshgrid(linspace(0, 1, 4001));
+A = exp(-(X - Y).^2);
+[L, p] = pchol(A, 1e-9);
+B = L*L.';
+norm(A(:) - B(:))
+\end{lstlisting}
+
+
+\subsubsection*{pchol}
+\begin{lstlisting}[frame=single]
+function [ L, p ] = pchol( A, tol )
+[~,n] = size(A);
+L = zeros(n);
+p = 1:n;
+d = diag(A);
+tr = trace(A);
+k = 1;
+while k <= n && tr > tol
+  [~,pivl] = max(d(p(k:n)));
+  p([pivl k]) = p([k pivl]);
+  L(p(k),k) = sqrt(d(p(k)));
+  L(p(k+1:n),k) = A(p(k+1:n),p(k))/L(p(k),k);
+  L(p(k+1:n),k) = L(p(k+1:n),k)
+     - L(p(k+1:n),1:k-1)*L(p(k),1:k-1)'/L(p(k),k);
+  d(p(k:n)) = d(p(k:n)) - L(p(k:n),k).^2;
+  tr = sum(abs(d(p(k:n))));
+  k = k + 1;
+end
+end
+\end{lstlisting}
+% \filbreak
+\subsubsection*{Output}
+\begin{lstlisting}[frame=single]
+>> main
+ans =
+1.851270121753964e-10
+\end{lstlisting}
+
+\end{document}

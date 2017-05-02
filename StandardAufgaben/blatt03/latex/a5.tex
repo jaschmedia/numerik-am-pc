@@ -1,0 +1,106 @@
+% !TeX spellcheck = de_DE
+\documentclass[ngerman,12pt]{article}
+
+% Packages for Language
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[final]{graphicx}
+\usepackage{amsmath}
+\usepackage{float}
+%\usepackage{wrapfig}
+\usepackage{caption}
+%\usepackage{multirow}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage[german, plain]{fancyref}
+\usepackage{afterpage,pdflscape} %%% !!!!!!! CHANGE TO PDFLSCAPE LATER!
+\usepackage{varioref}
+\usepackage{siunitx}
+\usepackage{translator}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\setlength{\headheight}{15.5pt}
+\lhead{NAME NAME NAME}
+\rhead{\today}
+\chead{Numerik Übung 3}
+
+
+\begin{document}
+\lstset{language=Matlab,basicstyle=\ttfamily,columns=fixed}
+\subsubsection*{A5}
+\begin{lstlisting}[frame=single]
+function a5()
+  A = gallery('orthog', 3*666, -2);
+  b = ones(size(A, 1), 1); xm = A\b;
+  B = A; tic; B = gaussRank1(B); toc
+  errnp = norm(
+    xm - rsolveGAXPY(B, lsolveGAXPY(B, b))
+  )
+  B = A; tic; [B, p] = gaussGAXPY(B); toc
+  errpp = norm(
+    xm - rsolveGAXPY(B, lsolveGAXPY(B, b(p)))
+  )
+end
+\end{lstlisting}
+(gaussRank1 aus vorheriger Übung)
+
+\subsubsection*{gaussGAXPY}
+\begin{lstlisting}[frame=single]
+function [A, p] =  gaussGAXPY(A)
+[n,~] = size(A);
+p = [1:n];
+for j = 1:n-1
+  [~,m] = max(abs(A(j:n,j)));
+  m = m + j-1;
+  p([m j]) = p([j m]);
+  A([m j],:) = A([j m],:);
+  A([j+1:n],j) = A([j+1:n],j)/A(j,j);
+  for k = 2:j+1
+    A(k:n,j+1) = A(k:n,j+1) - A(k-1,j+1)*A(k:n,k-1);
+  end
+  end
+end
+\end{lstlisting}
+\filbreak
+\subsubsection*{lsolveGAXPY}
+\begin{lstlisting}[frame=single]
+function b = lsolveGAXPY(L, b)
+[n,~] = size(L);
+for j = 1:n-1
+  b(j+1:n) = b(j+1:n) - b(j)*L(j+1:n,j);
+end
+end
+\end{lstlisting}
+
+\subsubsection*{rsolveGAXPY}
+\begin{lstlisting}[frame=single]
+function y = rsolveGAXPY(R, y)
+[n,~] = size(R);
+for j = n:-1:2
+  y(j) = y(j)/R(j,j);
+  y(1:j-1) = y(1:j-1)-y(j)*R(1:j-1,j);
+end
+y(1) = y(1)/R(1,1);
+end
+\end{lstlisting}
+
+\subsubsection*{Output}
+\begin{lstlisting}[frame=single]
+>> a5
+Elapsed time is 30.404333 seconds.
+
+errnp =
+
+  10.868027585427583
+
+Elapsed time is 22.380193 seconds.
+
+errpp =
+
+  2.809002049360224e-15
+\end{lstlisting}
+
+\end{document}
